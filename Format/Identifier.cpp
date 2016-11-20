@@ -21,7 +21,7 @@ Sign::Sign(wchar_t sign)
 	else
 	{
 		m_state = STATE::FAIL;
-		m_sign = L'';
+		m_sign = L'\0';
 	}
 }
 bool Sign::Good()
@@ -54,7 +54,7 @@ Align::Align(wchar_t align)
 	else
 	{
 		m_state = STATE::FAIL;
-		m_align = L'';
+		m_align = L'\0';
 	}
 }
 bool Align::Good()

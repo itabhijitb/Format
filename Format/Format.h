@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include <algorithm>
 /******************************************************************************
 *                             Application Headers                             *
 ******************************************************************************/
@@ -26,29 +26,27 @@ private:
 	std::pair<std::tstring, std::shared_ptr<std::tstring>>  
 	ParseReplacementField(std::tstring token);
     template <typename Ty>
-	void ReplaceField(const Ty& value)
+	std::tstring ReplaceField(size_t index, const Ty& value)
 	{
-        std::tstring key;
-        if (std::is_same(Ty, kwarg)::value)
+        //std::tstring key;
+        if (std::is_same<Ty, kwarg>::value)
         {
-            key = value.m_name;
-            if (m_tokens.find(key) == 0)
-            {
-                // tuple index out of range **Error**
-            }
-            (Token<Ty>)(*m_tokens[key]) = value.m_value;
-            m_tokens.erase(key);
+			//auto key = value;
+   //         if (m_tokens.count(key) == 0)
+   //         {
+   //             // tuple index out of range **Error**
+   //         }
+			//(Token<Ty>)(*m_tokens[key]) = value;
+   //         m_tokens.erase(key);
         }
         else
         {
-            key = m_tokens.cbegin();
-            (Token<Ty>)(*m_tokens[key]) = value;
-            m_tokens.erase(key);
+			return Token<Ty>{ *m_tokens [std::to_tstring(index) ]}(value);
         }
 		
 	}
     template <>
-    void ReplaceField<kwarg>(const kwarg& value)
+	std::tstring ReplaceField<kwarg>(size_t index, const kwarg& value)
     {
         auto key = value.name();
         if (m_tokens.find(key) == m_tokens.cend())
@@ -64,25 +62,24 @@ public:
 	Format(std::tstring fmt);
 
 	template <typename Ty>
-	Format& operator()(const Ty& last)
+	std::tstring operator()(const Ty& last)
 	{
-		ReplaceField(last);
-		
-		return *this;
+		return ReplaceField(m_argsCount, last);
 	}
 	template <typename First, typename... Rest>
-	Format& operator()(const First& first, const Rest&... rest)
+	std::tstring operator()(const First& first, const Rest&... rest)
 	{
-        
-        ReplaceField(first);
-		return *this;
+		std::size_t args_size = sizeof...(Rest);
+		m_argsCount = std::max(m_argsCount, args_size - 1);
+        return ReplaceField(m_argsCount - args_size, first) + (*this)(rest...);
 	}
 	std::tstring str();
 private:
 	std::tstring m_original;
 	std::vector<std::shared_ptr<std::tstring>> m_result;
 	std::map<std::tstring, std::shared_ptr<std::tstring>> m_tokens;
-	intmax_t m_autoFieldCount;
+	std::size_t m_autoFieldCount;
+	std::size_t m_argsCount = 0;
 	enum class STATE {GOOD, FAIL}  m_state;
 };
 #endif

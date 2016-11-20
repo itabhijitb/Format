@@ -180,7 +180,7 @@ std::pair<std::tstring, std::shared_ptr<std::tstring>>
 	{
 
 		std::tstring id = _T(""), format = _T("");
-		if (sep == token.npos || token.size() > sep)
+		if (sep == token.npos || token.size() <= sep)
 		{
 			// {10} {ABC} {10:} {ABC:}
 			id = token;

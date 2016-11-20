@@ -1,6 +1,8 @@
 #include "Format.h"
 #include <iostream>
+#include <memory>
+#include <string>
 int main()
 {
-	std::wcout<<Format(_T("{0}{1}"))(std::tstring(_T("Abhijit")),1106).str()<<std::endl;
+	std::wcout<<Format(_T("{:10.6}"))(4321.)<<std::endl;
 }

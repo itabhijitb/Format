@@ -42,7 +42,7 @@ private:
 	std::shared_ptr<Ty> m_data;
 };
 template <typename Ty>
-Ty& Cast(Optional<Ty>& obj)
+Ty Cast(Optional<Ty>& obj)
 {
 	return static_cast<Ty>(obj);
 }

@@ -16,10 +16,10 @@ GenericToken::GenericToken(std::tstring szToken):m_bCenter(false)
 		m_type = szToken.back();
 	}
 	//Check the previous Character, and return if None present
-	if (++fmt_it == szToken.crend()) return; 
+	if (std::next(fmt_it) == szToken.crend()) return; 
 	szValue = _T("");
 	for(int count = 1; 
-		std::isdigit(*fmt_it, loc) && fmt_it != szToken.crend(); 
+	fmt_it != szToken.crend() && std::isdigit(*fmt_it, loc);
 		fmt_it++, count *= 10)
 	{
 		szValue = *fmt_it + szValue;
@@ -160,12 +160,12 @@ std::tstringstream& Token<long double>::Type(std::tstringstream& out)
 	case L'n':
 		out.imbue(std::locale(""));
 	case L'g':
-	default:
 		{
 			size_t p = static_cast<int>(m_precission);
 			if (!p) p = 1;
 			std::tstringstream wsDress;
 			wsDress<<std::setprecision(p);
+			wsDress<< std::scientific;
 			wsDress<<m_data;
 			size_t pos = wsDress.str().find_last_of(_T("+-"));
 			if (pos == wsDress.str().npos)
@@ -184,7 +184,11 @@ std::tstringstream& Token<long double>::Type(std::tstringstream& out)
 				out<<std::scientific;
 			}
 		}
-
+	default:
+		out << std::setprecision(1);
+		out << std::fixed;
+		out << std::setw(m_width);
+		break;
 	}
 	return out;
 }
@@ -272,8 +276,11 @@ std::tstringstream& Token<intmax_t>::Type(std::tstringstream& out)
 	return out;
 }
 
-Token<intmax_t>::Token(std::tstring szToken):GenericToken(szToken) {};
-std::tstring Token<intmax_t>::operator()(long long data)
+Token<double>::Token(std::tstring szToken) :Token<long double>(szToken) {};
+Token<float>::Token(std::tstring szToken) :Token<double>(szToken) {};
+
+Token<uintmax_t>::Token(std::tstring szToken):Token<float>(szToken) {};
+std::tstring Token<uintmax_t>::operator()(uintmax_t data)
 {
 	m_data = data;
 	std::tstringstream  out;
@@ -327,3 +334,10 @@ std::tstring Token<intmax_t>::operator()(long long data)
 	return m_text;
 
 }
+Token<intmax_t>::Token(std::tstring szToken) :Token<uintmax_t>(szToken) {};
+Token<int32_t>::Token(std::tstring szToken) :Token<intmax_t>(szToken) {};
+Token<int16_t>::Token(std::tstring szToken) :Token<int32_t>(szToken) {};
+Token<int8_t>::Token(std::tstring szToken) :Token<int16_t>(szToken) {};
+Token<char *>::Token(std::tstring szToken) :GenericToken(szToken) {};
+Token<char>::Token(std::tstring szToken) :GenericToken(szToken) {};
+Token<wchar_t>::Token(std::tstring szToken) :GenericToken(szToken) {};

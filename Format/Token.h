@@ -22,6 +22,7 @@ public:
 private:
 	enum class STATE {GOOD, FAIL}  m_state;
 protected:
+	GenericToken();
 	GenericToken(std::tstring szToken);
 	std::tstring Center(std::tstring& text);
 	std::tstringstream& Justify(std::tstringstream& out, bool bRight = false);
@@ -38,13 +39,16 @@ protected:
 	bool m_bCenter;
 };
 template <typename Ty>
-class Token: GenericToken
+class Token: public GenericToken
 {
-	Token(std::tstring szToken) {};
 public:
+	Token() {};
+	Token(std::tstring szToken) {};
+	virtual Token& operator=(const Token&) {};
+
 };
 template <>
-class Token<std::tstring>: GenericToken
+class Token<std::tstring>: public GenericToken
 {
 
 public:
@@ -52,9 +56,9 @@ public:
 	std::tstring operator()(const std::tstring& data);
 };
 template <>
-class Token<long double>: GenericToken
+class Token<long double>: public GenericToken
 {
-private:
+protected:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
@@ -64,45 +68,32 @@ private:
 	bool m_bPct;
 };
 template <>
-class Token<double>: GenericToken
+class Token<double>: public Token<long double>
 {
-private:
+protected:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(double data);
+	//std::tstring operator()(double data);
 private:
 	long double m_data;
 	bool m_bPct;
 };
 template <>
-class Token<float>: GenericToken
+class Token<float>: public Token<double>
 {
-private:
+protected:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(float data);
+	//std::tstring operator()(float data);
 private:
 	long double m_data;
 	bool m_bPct;
 };
-template <>
-class Token<intmax_t>: GenericToken
-{
-private:
-	std::tstringstream& Type(std::tstringstream& out);
-public:
-	Token(std::tstring szToken);
-	std::tstring operator()(intmax_t data);
-private:
-	intmax_t m_data;
-	Optional<std::tstring> m_text;
 
-
-};
 template <>
-class Token<uintmax_t>: GenericToken
+class Token<uintmax_t>: public Token<float>
 {
 private:
 	std::tstringstream& Type(std::tstringstream& out);
@@ -115,42 +106,60 @@ private:
 
 
 };
+
 template <>
-class Token<int8_t>: GenericToken
+class Token<intmax_t> : public Token<uintmax_t>
+{
+protected:
+	std::tstringstream& Type(std::tstringstream& out);
+public:
+	Token(std::tstring szToken);
+	//std::tstring operator()(intmax_t data);
+private:
+	intmax_t m_data;
+	Optional<std::tstring> m_text;
+
+
+};
+
+template <>
+class Token<int32_t> : public Token<intmax_t>
 {
 private:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(int8_t data);
+	//std::tstring operator()(int32_t data);
 private:
 	int8_t m_data;
 	Optional<std::tstring> m_text;
 
 
 };
+
 template <>
-class Token<int16_t>: GenericToken
+class Token<int16_t> : public Token<int32_t>
 {
 private:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(int16_t data);
+	//std::tstring operator()(int16_t data);
 private:
 	int8_t m_data;
 	Optional<std::tstring> m_text;
 
 
 };
+
 template <>
-class Token<int32_t>: GenericToken
+class Token<int8_t> : public Token<int16_t>
 {
 private:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(int32_t data);
+	//std::tstring operator()(int8_t data);
 private:
 	int8_t m_data;
 	Optional<std::tstring> m_text;
@@ -185,48 +194,48 @@ private:
 //
 //
 //};
-template <>
-class Token<int16_t>: GenericToken
-{
-private:
-	std::tstringstream& Type(std::tstringstream& out);
-public:
-	Token(std::tstring szToken);
-	std::tstring operator()(uint16_t data);
-private:
-	int8_t m_data;
-	Optional<std::tstring> m_text;
-
-
-};
-template <>
-class Token<int32_t>: GenericToken
-{
-private:
-	std::tstringstream& Type(std::tstringstream& out);
-public:
-	Token(std::tstring szToken);
-	std::tstring operator()(uint32_t data);
-private:
-	int8_t m_data;
-	Optional<std::tstring> m_text;
-
-
-};
-template <>
-class Token<int64_t>: GenericToken
-{
-private:
-	std::tstringstream& Type(std::tstringstream& out);
-public:
-	Token(std::tstring szToken);
-	std::tstring operator()(uint32_t data);
-private:
-	int8_t m_data;
-	Optional<std::tstring> m_text;
-
-
-};
+//template <>
+//class Token<int16_t>: GenericToken
+//{
+//private:
+//	std::tstringstream& Type(std::tstringstream& out);
+//public:
+//	Token(std::tstring szToken);
+//	std::tstring operator()(uint16_t data);
+//private:
+//	int8_t m_data;
+//	Optional<std::tstring> m_text;
+//
+//
+//};
+//template <>
+//class Token<int32_t>: GenericToken
+//{
+//private:
+//	std::tstringstream& Type(std::tstringstream& out);
+//public:
+//	Token(std::tstring szToken);
+//	std::tstring operator()(uint32_t data);
+//private:
+//	int8_t m_data;
+//	Optional<std::tstring> m_text;
+//
+//
+//};
+//template <>
+//class Token<int64_t>: GenericToken
+//{
+//private:
+//	std::tstringstream& Type(std::tstringstream& out);
+//public:
+//	Token(std::tstring szToken);
+//	std::tstring operator()(uint32_t data);
+//private:
+//	int8_t m_data;
+//	Optional<std::tstring> m_text;
+//
+//
+//};
 template <>
 class Token<char *>: GenericToken
 {
@@ -234,7 +243,7 @@ private:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(tchar * data);
+	//std::tstring operator()(tchar * data);
 private:
 	int8_t m_data;
 	Optional<std::tstring> m_text;
@@ -248,7 +257,7 @@ private:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(char data);
+	//std::tstring operator()(char data);
 private:
 	int8_t m_data;
 	Optional<std::tstring> m_text;
@@ -262,7 +271,7 @@ private:
 	std::tstringstream& Type(std::tstringstream& out);
 public:
 	Token(std::tstring szToken);
-	std::tstring operator()(wchar_t  data);
+	//std::tstring operator()(wchar_t  data);
 private:
 	int8_t m_data;
 	Optional<std::tstring> m_text;
